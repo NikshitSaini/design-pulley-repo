@@ -1,0 +1,73 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+    darkMode: "class",
+    content: [
+      "./index.html",
+      "./src/**/*.{js,ts,jsx,tsx}",
+    ],
+    theme: {
+        extend: {
+            "colors": {
+                "on-primary": "#ffffff",
+                "secondary-fixed-dim": "#b6c4ff",
+                "surface-dim": "#dadada",
+                "secondary-container": "#aebeff",
+                "tertiary-fixed-dim": "#c3c4e4",
+                "on-tertiary": "#ffffff",
+                "surface-tint": "#555d7d",
+                "on-surface-variant": "#45464d",
+                "on-secondary": "#ffffff",
+                "surface": "#f9f9f9",
+                "on-tertiary-fixed-variant": "#43455f",
+                "on-primary-fixed-variant": "#3e4564",
+                "primary": "#050d2a",
+                "error": "#ba1a1a",
+                "primary-fixed-dim": "#bdc5ea",
+                "outline-variant": "#c6c6ce",
+                "surface-container-high": "#e8e8e8",
+                "background": "#f9f9f9",
+                "on-primary-container": "#838aad",
+                "secondary": "#4b5b96",
+                "tertiary": "#0b0d25",
+                "surface-container": "#eeeeee",
+                "surface-container-low": "#f3f3f3",
+                "inverse-primary": "#bdc5ea",
+                "surface-bright": "#f9f9f9",
+                "on-error": "#ffffff",
+                "surface-variant": "#e2e2e2",
+                "on-primary-fixed": "#121a36",
+                "on-secondary-container": "#3b4c85",
+                "surface-container-lowest": "#ffffff",
+                "on-secondary-fixed": "#00164f",
+                "secondary-fixed": "#dce1ff",
+                "primary-container": "#1b2340",
+                "inverse-on-surface": "#f1f1f1",
+                "on-background": "#1a1c1c",
+                "surface-container-highest": "#e2e2e2",
+                "on-surface": "#1a1c1c",
+                "primary-fixed": "#dce1ff",
+                "inverse-surface": "#2f3131",
+                "tertiary-fixed": "#e0e0ff",
+                "on-tertiary-fixed": "#171932",
+                "tertiary-container": "#21233c",
+                "outline": "#76767e",
+                "on-error-container": "#93000a",
+                "on-secondary-fixed-variant": "#33437d",
+                "on-tertiary-container": "#888aa8",
+                "error-container": "#ffdad6"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+            },
+            "fontFamily": {
+                "headline": ["Manrope"],
+                "body": ["\"Work Sans\""],
+                "label": ["\"Work Sans\""]
+            }
+        },
+    },
+    plugins: [],
+}
