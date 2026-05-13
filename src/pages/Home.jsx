@@ -1,16 +1,17 @@
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
-import livspaceBanner from '../assets/images/Livspace/banner.jpg';
+import { useNavigate } from 'react-router-dom';
+import livspaceBanner from '../assets/images/Livspace/banner.webp';
 import cloveDentalBanner from '../assets/images/Clove Dental/banner.webp';
-import lladroBanner from '../assets/images/llardo/banner.jpg';
-import tscBanner from '../assets/images/The sleep company/banner.JPG';
-import abCoffeeBanner from '../assets/images/Abcoffee/banner.jpg';
-import givaBanner from '../assets/images/Giva/banner.jpg';
+import lladroBanner from '../assets/images/llardo/banner.webp';
+import tscBanner from '../assets/images/The sleep company/banner.webp';
+import abCoffeeBanner from '../assets/images/Abcoffee/banner.webp';
+import givaBanner from '../assets/images/Giva/banner.webp';
 
-import heroBanner1 from '../assets/banner/1hero.jpg';
-import heroBanner2 from '../assets/banner/2hero.jpg';
-import heroBanner3 from '../assets/banner/3hero.jpg';
-import heroBanner4 from '../assets/banner/4hero.jpg';
+import heroBanner1 from '../assets/banner/1hero.webp';
+import heroBanner2 from '../assets/banner/2hero.webp';
+import heroBanner3 from '../assets/banner/3hero.webp';
+import heroBanner4 from '../assets/banner/4hero.webp';
 
 // Reusable scroll reveal component
 function ScrollReveal({ children, delay = 0, className = "", direction = "up" }) {
@@ -61,6 +62,91 @@ function AnimatedNumber({ value }) {
     return <span ref={ref}>{display}</span>;
 }
 
+const projectTypes = [
+    "Retail Execution",
+    "Commercial Interior",
+    "Turnkey Build",
+    "Consulting"
+];
+
+// Custom Select Dropdown Component
+function CustomSelect({ value, onChange, options, placeholder = "Select an option" }) {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    return (
+        <div ref={dropdownRef} className="relative w-full">
+            <button
+                type="button"
+                onClick={() => setIsOpen(!isOpen)}
+                className="w-full bg-transparent border-b border-outline-variant/30 py-3 focus:outline-none focus:border-primary text-primary font-medium transition-colors flex justify-between items-center group"
+            >
+                <span>{value || placeholder}</span>
+                <motion.span
+                    animate={{ rotate: isOpen ? 180 : 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="material-symbols-outlined text-outline group-hover:text-primary transition-colors"
+                >
+                    expand_more
+                </motion.span>
+            </button>
+
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute top-full left-0 right-0 mt-2 z-50 bg-surface rounded-[1.5rem] shadow-[0_10px_30px_rgba(5,13,42,0.15)] border border-outline-variant/20 overflow-hidden"
+                    >
+                        <div className="py-2">
+                            {options.map((option, index) => (
+                                <motion.button
+                                    key={option}
+                                    type="button"
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: index * 0.05 }}
+                                    onClick={() => {
+                                        onChange(option);
+                                        setIsOpen(false);
+                                    }}
+                                    className={`w-full px-6 py-4 text-left font-medium transition-all duration-200 flex items-center gap-3 group ${
+                                        value === option
+                                            ? "bg-primary/10 text-primary"
+                                            : "text-primary hover:bg-surface-container-low text-on-surface-variant hover:text-primary"
+                                    }`}
+                                >
+                                    <motion.span
+                                        initial={false}
+                                        animate={{ scale: value === option ? 1.2 : 1 }}
+                                        className={`material-symbols-outlined text-lg ${value === option ? "text-primary" : "text-outline-variant group-hover:text-primary"}`}
+                                    >
+                                        {value === option ? "check_circle" : "radio_button_unchecked"}
+                                    </motion.span>
+                                    <span>{option}</span>
+                                </motion.button>
+                            ))}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+}
+
 const heroSlides = [
     {
         image: heroBanner1,
@@ -86,6 +172,16 @@ const heroSlides = [
 
 export default function Home() {
     const [currentSlide, setCurrentSlide] = useState(0);
+    const [selectedProjectType, setSelectedProjectType] = useState("");
+    const navigate = useNavigate();
+
+    const nextSlide = () => {
+        setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+    };
+
+    const prevSlide = () => {
+        setCurrentSlide((prev) => (prev === 0 ? heroSlides.length - 1 : prev - 1));
+    };
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -99,18 +195,36 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.4 }}
             className="bg-surface font-body text-on-surface antialiased overflow-hidden"
         >
             <main>
                 {/* Hero Section */}
                 <section className="relative min-h-[100svh] pt-32 pb-12 flex flex-col justify-center overflow-hidden" id="home">
+                    {/* Navigation Arrows */}
+                    <button 
+                        onClick={prevSlide}
+                        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-30 w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-full bg-black/20 hover:bg-black/40 backdrop-blur-md border border-white/20 text-white transition-all hover:scale-110"
+                        aria-label="Previous slide"
+                    >
+                        <span className="material-symbols-outlined text-3xl md:text-4xl">chevron_left</span>
+                    </button>
+
+                    <button 
+                        onClick={nextSlide}
+                        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-30 w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-full bg-black/20 hover:bg-black/40 backdrop-blur-md border border-white/20 text-white transition-all hover:scale-110"
+                        aria-label="Next slide"
+                    >
+                        <span className="material-symbols-outlined text-3xl md:text-4xl">chevron_right</span>
+                    </button>
+
                     {/* Full Background Image Slider */}
                     <div className="absolute inset-0 z-0">
                         <AnimatePresence>
                             <motion.img
                                 key={currentSlide}
                                 src={heroSlides[currentSlide].image}
+                                fetchPriority="high"
                                 initial={{ opacity: 0, scale: 1.05 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0 }}
@@ -279,13 +393,12 @@ export default function Home() {
                         {/* Merged Stats Bar */}
                         <div className="bg-primary px-8 py-16 sm:px-12 md:px-16 rounded-[3rem] relative overflow-hidden shadow-2xl">
                             <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_50%,transparent_75%)] bg-[length:250%_250%] animate-[shimmer_10s_infinite_linear]" />
-                            <div className="grid grid-cols-2 gap-10 lg:grid-cols-5 md:gap-12 relative z-10">
+                            <div className="grid grid-cols-2 gap-10 lg:grid-cols-4 md:gap-12 relative z-10">
                                 {[
                                     { val: 50, label: "Projects Delivered" },
-                                    { val: 300, label: "Skilled Workers" },
-                                    { val: 15, label: "Site Engineers" },
-                                    { val: 8, label: "States PAN India" },
-                                    { val: 7, label: "Repeat Clients" }
+                                    { val: 7, label: "Repeat Clients" },
+                                    { val: 15, label: "Site Engineers & Support Staff" },
+                                    { val: 300, label: "Skilled Workers" }
                                 ].map((stat, i) => (
                                     <ScrollReveal key={i} delay={i * 0.1} className="text-center">
                                         <div className="mb-3 text-4xl font-headline font-extrabold tracking-tighter text-on-primary sm:text-5xl md:text-6xl drop-shadow-md">
@@ -357,7 +470,7 @@ export default function Home() {
                                     </div>
                                     
                                     <div className="mt-12 flex flex-wrap justify-center gap-4">
-                                        {['Delhi NCR', 'Gujarat', 'Maharashtra', 'Karnataka', 'West Bengal', 'Chennai'].map((city, i) => (
+                                        {['Delhi NCR', 'West Bengal', 'MP', 'UP', 'Gujarat', 'Maharashtra', 'Karnataka', 'Tamil Nadu'].map((city, i) => (
                                             <div key={city} className="flex items-center gap-2 px-5 py-3 rounded-full bg-surface-container border border-outline-variant/20 shadow-sm hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 cursor-pointer transform hover:-translate-y-1">
                                                 <span className="material-symbols-outlined text-secondary text-sm">location_on</span>
                                                 <span className="font-label text-xs uppercase tracking-widest font-bold text-primary">{city}</span>
@@ -380,17 +493,21 @@ export default function Home() {
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
                             {[
-                                { title: "Livspace", loc: "3,000 SQFT | Gandhinagar", tag: "Retail Execution", img: livspaceBanner },
-                                { title: "Clove Dental", loc: "8+ Clinics | Delhi, Jaipur", tag: "Healthcare", img: cloveDentalBanner },
-                                { title: "Lladró", loc: "10,000 SQFT | New Delhi", tag: "Boutique Luxury", img: lladroBanner },
-                                { title: "The Sleep Company", loc: "800–1,500 SQFT | PAN India", tag: "Retail Experience", img: tscBanner },
-                                { title: "abCoffee", loc: "Small Format | Gurgaon", tag: "F&B Concept", img: abCoffeeBanner },
-                                { title: "Giva", loc: "Premium Outlets | PAN India", tag: "Retail", img: givaBanner }
+                                { id: "livspace", title: "Livspace", loc: "3,000 SQFT | Gandhinagar", tag: "Retail Execution", img: livspaceBanner },
+                                { id: "clove", title: "Clove Dental", loc: "8+ Clinics | Delhi, Jaipur", tag: "Healthcare", img: cloveDentalBanner },
+                                { id: "lladro", title: "Lladró", loc: "10,000 SQFT | New Delhi", tag: "Boutique Luxury", img: lladroBanner },
+                                { id: "sleep", title: "The Sleep Company", loc: "800–1,500 SQFT | PAN India", tag: "Retail Experience", img: tscBanner },
+                                { id: "abcoffee", title: "abCoffee", loc: "Small Format | Gurgaon", tag: "F&B Concept", img: abCoffeeBanner },
+                                { id: "giva", title: "Giva", loc: "Premium Outlets | PAN India", tag: "Retail", img: givaBanner }
                             ].map((project, i) => (
                                 <ScrollReveal key={i} delay={0.1 * (i % 3)}>
-                                    <div className="group relative overflow-hidden rounded-[2rem] shadow-sm hover:shadow-2xl transition-all duration-500">
+                                    <div 
+                                        onClick={() => navigate('/work', { state: { clientId: project.id } })}
+                                        className="group relative overflow-hidden rounded-[2rem] shadow-sm hover:shadow-2xl transition-all duration-500 cursor-pointer"
+                                    >
                                         <div className="aspect-[4/5] overflow-hidden">
                                             <img 
+                                                loading="lazy"
                                                 className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
                                                 alt={project.title} 
                                                 src={project.img}
@@ -487,23 +604,17 @@ export default function Home() {
                                     Send us your project brief and our engineering team will get back to you within 24 hours.
                                 </p>
                                 <div className="space-y-8">
-                                    <div className="flex items-center gap-6 group cursor-pointer">
+                                    <div className="flex items-center gap-6">
                                         <div className="w-14 h-14 bg-on-primary/10 rounded-full flex items-center justify-center text-on-primary group-hover:bg-on-primary group-hover:text-primary transition-colors duration-300 shrink-0">
                                             <span className="material-symbols-outlined">mail</span>
                                         </div>
-                                        <span className="text-on-primary font-headline font-bold text-lg md:text-xl break-all relative inline-block">
-                                            projects@designpulley.com
-                                            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-secondary-container group-hover:w-full transition-all duration-500"></span>
-                                        </span>
+                                        <a href="mailto:projects@designpulley.com" className="text-on-primary font-headline font-bold text-lg md:text-xl break-all relative inline-block hover:underline">projects@designpulley.com</a>
                                     </div>
-                                    <div className="flex items-center gap-6 group cursor-pointer">
+                                    <div className="flex items-center gap-6">
                                         <div className="w-14 h-14 bg-on-primary/10 rounded-full flex items-center justify-center text-on-primary group-hover:bg-on-primary group-hover:text-primary transition-colors duration-300 shrink-0">
                                             <span className="material-symbols-outlined">call</span>
                                         </div>
-                                        <span className="text-on-primary font-headline font-bold text-lg md:text-xl relative inline-block">
-                                            +91 98765 43210
-                                            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-secondary-container group-hover:w-full transition-all duration-500"></span>
-                                        </span>
+                                        <a href="tel:+919876543210" className="text-on-primary font-headline font-bold text-lg md:text-xl relative inline-block hover:underline">+91 98765 43210</a>
                                     </div>
                                 </div>
                             </ScrollReveal>
@@ -529,13 +640,12 @@ export default function Home() {
                                             </div>
                                             <div className="relative">
                                                 <label className="absolute left-0 -top-3.5 text-[0.65rem] font-label text-secondary uppercase tracking-[0.2em] font-bold">Project Type</label>
-                                                <select className="w-full bg-transparent border-b border-outline-variant/30 py-3 focus:outline-none focus:border-primary text-primary font-medium appearance-none cursor-pointer">
-                                                    <option value="Retail Execution">Retail Execution</option>
-                                                    <option value="Commercial Interior">Commercial Interior</option>
-                                                    <option value="Turnkey Build">Turnkey Build</option>
-                                                    <option value="Consulting">Consulting</option>
-                                                </select>
-                                                <span className="material-symbols-outlined absolute right-0 top-3 text-outline pointer-events-none">expand_more</span>
+                                                <CustomSelect 
+                                                    value={selectedProjectType}
+                                                    onChange={setSelectedProjectType}
+                                                    options={projectTypes}
+                                                    placeholder="Select project type"
+                                                />
                                             </div>
                                         </div>
                                         <div className="relative group pt-4">

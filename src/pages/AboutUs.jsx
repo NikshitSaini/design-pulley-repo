@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion, useInView } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 // Reusable scroll reveal component
 function ScrollReveal({ children, delay = 0, className = "", direction = "up" }) {
@@ -50,12 +51,18 @@ function AnimatedNumber({ value }) {
 }
 
 export default function AboutUs() {
+    const navigate = useNavigate();
+
+    const scrollToOperational = () => {
+        const el = document.getElementById('operational-footprint');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
     return (
         <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.8, ease: "easeInOut" }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
             className="bg-surface text-on-surface font-body antialiased overflow-hidden min-h-screen"
         >
             <main className="pt-24 md:pt-32 pb-24">
@@ -76,10 +83,10 @@ export default function AboutUs() {
                                         Design Pulley is a turnkey interior design firm that executes retail expansion plans across India. We bridge the gap between architectural vision and ground-level execution, ensuring every retail square foot generates value.
                                     </p>
                                     <div className="flex items-center gap-6">
-                                        <div className="w-16 h-16 rounded-full border border-primary/20 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors duration-500 cursor-pointer">
+                                        <button onClick={scrollToOperational} type="button" className="w-16 h-16 rounded-full border border-primary/20 flex items-center justify-center text-primary hover:bg-primary hover:text-on-primary transition-colors duration-500">
                                             <span className="material-symbols-outlined text-2xl">arrow_downward</span>
-                                        </div>
-                                        <span className="text-sm font-label uppercase tracking-[0.2em] font-bold text-primary">Discover More</span>
+                                        </button>
+                                        <button onClick={scrollToOperational} type="button" className="text-sm font-label uppercase tracking-[0.2em] font-bold text-primary underline-offset-2 hover:underline">Discover More</button>
                                     </div>
                                 </ScrollReveal>
                             </div>
@@ -110,7 +117,7 @@ export default function AboutUs() {
                 </section>
 
                 {/* Big India Map Section */}
-                <section className="py-24 md:py-32 bg-surface-container-lowest px-4 sm:px-6 md:px-12 relative overflow-hidden">
+                <section id="operational-footprint" className="py-24 md:py-32 bg-surface-container-lowest px-4 sm:px-6 md:px-12 relative overflow-hidden">
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(5,13,42,0.03)_0%,transparent_100%)]"></div>
                     <div className="max-w-[1440px] mx-auto relative z-10">
                         <ScrollReveal className="text-center mb-16 md:mb-24">
@@ -128,7 +135,7 @@ export default function AboutUs() {
                                     />
                                     
                                     <div className="mt-12 flex flex-wrap justify-center gap-4">
-                                        {["Delhi NCR", "Mumbai", "Pune", "Ahmedabad", "Surat", "Rajkot", "Chennai"].map((city, i) => (
+                                        {['Delhi NCR', 'West Bengal', 'MP', 'UP', 'Gujarat', 'Maharashtra', 'Karnataka', 'Tamil Nadu'].map((city, i) => (
                                             <div key={city} className="flex items-center gap-2 px-5 py-3 rounded-full bg-surface-container border border-outline-variant/20 shadow-sm">
                                                 <span className="material-symbols-outlined text-secondary text-sm">location_on</span>
                                                 <span className="font-label text-xs uppercase tracking-widest font-bold text-primary">{city}</span>
@@ -147,10 +154,10 @@ export default function AboutUs() {
                     <div className="max-w-[1440px] mx-auto relative z-10">
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
                             {[
-                                { val: 25, label: "Successful Projects" },
-                                { val: 5, label: "Repeat Clients" },
-                                { val: 15, label: "Site Engineers" },
-                                { val: 300, label: "Dedicated Workers" }
+                                { val: 50, label: "Projects Delivered" },
+                                { val: 7, label: "Repeat Clients" },
+                                { val: 15, label: "Site Engineers & Support Staff" },
+                                { val: 300, label: "Skilled Workers" }
                             ].map((stat, i) => (
                                 <ScrollReveal key={i} delay={i * 0.1} className="text-center">
                                     <div className="mb-4 text-5xl sm:text-6xl md:text-7xl font-headline font-extrabold tracking-tighter text-on-primary drop-shadow-lg">
@@ -180,10 +187,10 @@ export default function AboutUs() {
                         
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
                             {[
-                                { name: "Anurag Lohia", role: "Operations", desc: "IIT Kanpur & IIM Ahmedabad (MBA) graduate focused on reinventing industry best practices, quality, and timelines.", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuCXvm5sxH0dX8evt94tteUtmFOizZtytzzI1TiL_enomyAWV9QfE1UyRgIes1TC0wJxEU1a4GcpRICxog-wX5uURx0G_OvuBd6tdpvS9TVBPPPGLkPBuv9K95rNU-4tIBAZYB40amN1dDNFUYjbYTEnjRuQ6Bt8e-aV7fYqOaCXUb9duGdE3E1sSriibTwirgS225JX4hXQiKJAB5zXDAcOeYFXD0MKEbG086yumcRClRPp2COsXaDVQIaeMfa8Og-W64lcch4s" },
-                                { name: "Akash Lakdawala", role: "Sales & Finance", desc: "CA & IIM Ahmedabad (MBA) graduate championing cost and time efficiency to ensure clients get maximum value for money.", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDHCAuXqbXHEhIBSms-sUopZiFWClsH4I-GyBYFsFyjhUAB3cRiMUkFmwgRN4AWSU6dS52Q_ob-uaAnDrMxIq1vWvzPj9-FMj3dYZpKOJPNaXIwdOCyWga532jZ2rk-2fyW88rH-BVdsBTXGZBu_jU2O1fKoN6U3u7ZnzxSqT8KSssrMXWF4ilylPAtgk_zhcMKTNFiumvNZmhWx8teWdl9KidEWRRT01AZAqGve8Vuzc0SbExigIqAJXCszZhnQQswWYFXBbl6" },
-                                { name: "Himanshu Lakdawala", role: "Consulting Engineer", desc: "Govt. Approved Valuer & NIT Surat Gold Medalist with 40+ years of industry experience providing strategic guidance.", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuDMbhruSXc9PFNykPpt2RbfSXxRc3u68I6ckLR85s-28WsUMg6Ecv6ULKNjogMbTawzj--tXOb4kjheTkmRKXbIPHXGeWLfKUCissBRGnf1gzyLkXizr2eToBzcR7UFt2ojYXfjylAn_VgYUhPCbG6dv1BwtcfAtGJQ_VOvJFegOxkbebQyvVBo-Whlsd0_u6gLbuOa0PRq0HW5-0tiXIgdUpwml3oio8WEE_GfJBu6x54gxC0kt-uXMO-7PnUKQogtQoSzdHsM" },
-                                { name: "Aamir Motiwala", role: "Vendor Relations", desc: "B.Comm graduate & entrepreneur ensuring seamless vendor collaboration and partnerships through effective communication.", img: "https://lh3.googleusercontent.com/aida-public/AB6AXuB8Pcf-hK0ZRL9NaDFbzmLut1wwbOlk3n9DSFmxlHoK1iTkAbeRUMvUltBQ0RpzSlHX3uctQICxW-42oqObQ76sxSA22q0dNT2HIEPA6vs4o_D1CDjxwHPI_Y8mQFmXBeNWIqAR3ns1TS164B8bysMv6eNDmJzSvNORDtVLFuXSNcGvU8eRtua0QHnbU3qp5q9B29Go5fXq6hhXDZm68Flzn75CGBDjvLyetTEI_rgKfvNw3RdNL5oaQ4lxli9dZOdcG0Y__jBA" }
+                                { name: "Anurag Lohia", role: "Operations", desc: "IIT Kanpur & IIM Ahmedabad (MBA) graduate focused on reinventing industry best practices, quality, and timelines.", img: "/assets/team-images/anurag_1.png" },
+                                { name: "Akash Lakdawala", role: "Sales & Finance", desc: "CA & IIM Ahmedabad (MBA) graduate championing cost and time efficiency to ensure clients get maximum value for money.", img: "/assets/team-images/Akash_Lakdawala.png" },
+                                { name: "Himanshu Lakdawala", role: "Consulting Engineer", desc: "Govt. Approved Valuer & NIT Surat Gold Medalist with 40+ years of industry experience providing strategic guidance.", img: "/assets/team-images/Himanshu_Lakdawala.png" },
+                                { name: "Aamir Motiwala", role: "Vendor Relations", desc: "B.Comm graduate & entrepreneur ensuring seamless vendor collaboration and partnerships through effective communication.", img: "/assets/team-images/Aamir_Motiwala.png" }
                             ].map((leader, i) => (
                                 <ScrollReveal key={i} delay={i * 0.1}>
                                     <motion.div 
@@ -218,7 +225,7 @@ export default function AboutUs() {
                             <h2 className="text-primary font-headline text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tighter mb-10 max-w-4xl mx-auto leading-tight">
                                 Ready to build your flagship presence?
                             </h2>
-                            <button className="bg-primary text-white px-12 py-5 font-headline font-bold text-sm tracking-[0.1em] uppercase rounded-full hover:scale-105 hover:shadow-xl transition-all duration-300">
+                            <button onClick={() => navigate('/contact')} className="bg-primary text-white px-12 py-5 font-headline font-bold text-sm tracking-[0.1em] uppercase rounded-full hover:scale-105 hover:shadow-xl transition-all duration-300">
                                 Consult with an Expert
                             </button>
                         </ScrollReveal>

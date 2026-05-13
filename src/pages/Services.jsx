@@ -28,7 +28,7 @@ export default function Services() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.4 }}
             className="bg-surface font-body text-on-surface antialiased overflow-hidden"
         >
             <main>
@@ -92,12 +92,12 @@ export default function Services() {
                             transition={{ duration: 1, delay: 0.3, type: "spring", stiffness: 100 }}
                             className="flex-1 w-full max-w-3xl relative hidden md:block"
                         >
-                            <div className="relative overflow-hidden rounded-[3rem] bg-surface/10 p-3 border border-on-primary/10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] backdrop-blur-md">
+                            <div className="relative overflow-hidden rounded-[3rem] bg-surface/10 p-3 border border-on-primary/10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] backdrop-blur-md group">
                                 <div className="relative aspect-[16/10] w-full overflow-hidden rounded-[2.5rem] bg-surface-container-high">
                                     <img 
-                                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 hover:scale-105" 
-                                        alt="Modern architectural interior" 
-                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhAMjzujMSTGgvg9_JGQOCbhATYYNJlXIJj8aM8XX6wlvQu9ZR7sNsGangr6JUKWwZw3K-hRWQx3s41JIg6DMO6o4XsSSiALnNJCNXQhFDGBulfE38tRs5Vy8YcyTzrRxken1_WmUuggNBrYJ1yi2vXIed5TA7lHtHoazilq2YlexdwMbCyoBUVoUv9gLK90GM8qD-FjSSGSM-eSwFQ_aJ1Ct17hl28ND3TpSfPsXgmfy-bnX1Qu51jeOqS2ecCwMrp13N3PTU"
+                                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 hover:scale-105 filter grayscale contrast-125 group-hover:grayscale-0" 
+                                        alt="Lladró Chandelier Gallery — LLADRÓ" 
+                                        src={encodeURI('/assets/work-images/llardo/Lladró Chandelier Gallery.webp')}
                                     />
                                 </div>
                             </div>

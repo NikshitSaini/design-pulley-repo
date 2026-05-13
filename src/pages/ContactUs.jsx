@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import React, { useRef, useState, useEffect } from 'react';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
 
 // Reusable scroll reveal component
 function ScrollReveal({ children, delay = 0, className = "", direction = "up" }) {
@@ -20,13 +20,100 @@ function ScrollReveal({ children, delay = 0, className = "", direction = "up" })
     );
 }
 
+const projectTypes = [
+    "Retail Execution",
+    "Commercial Interior",
+    "Turnkey Build",
+    "Consulting"
+];
+
+// Custom Select Dropdown Component
+function CustomSelect({ value, onChange, options, placeholder = "Select an option" }) {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    return (
+        <div ref={dropdownRef} className="relative w-full">
+            <button
+                type="button"
+                onClick={() => setIsOpen(!isOpen)}
+                className="w-full bg-surface-container-low border border-outline-variant/20 rounded-[1.5rem] py-4 px-6 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all flex justify-between items-center font-body text-base text-on-surface hover:border-primary/40 group"
+            >
+                <span className={value ? "text-on-surface" : "text-on-surface-variant/40"}>{value || placeholder}</span>
+                <motion.span
+                    animate={{ rotate: isOpen ? 180 : 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors"
+                >
+                    expand_more
+                </motion.span>
+            </button>
+
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute top-full left-0 right-0 mt-2 z-50 bg-surface-container-lowest rounded-[1.5rem] shadow-[0_10px_30px_rgba(5,13,42,0.15)] border border-outline-variant/20 overflow-hidden"
+                    >
+                        <div className="py-2">
+                            {options.map((option, index) => (
+                                <motion.button
+                                    key={option}
+                                    type="button"
+                                    initial={{ opacity: 0, x: -10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: index * 0.05 }}
+                                    onClick={() => {
+                                        onChange(option);
+                                        setIsOpen(false);
+                                    }}
+                                    className={`w-full px-6 py-4 text-left font-medium transition-all duration-200 flex items-center gap-3 group ${
+                                        value === option
+                                            ? "bg-primary/10 text-primary"
+                                            : "text-on-surface hover:bg-surface-container hover:text-primary"
+                                    }`}
+                                >
+                                    <motion.span
+                                        initial={false}
+                                        animate={{ scale: value === option ? 1.2 : 1 }}
+                                        className={`material-symbols-outlined text-lg ${value === option ? "text-primary" : "text-outline-variant group-hover:text-primary"}`}
+                                    >
+                                        {value === option ? "check_circle" : "radio_button_unchecked"}
+                                    </motion.span>
+                                    <span>{option}</span>
+                                </motion.button>
+                            ))}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+}
+
 export default function ContactUs() {
+    const [selectedProjectType, setSelectedProjectType] = useState("");
+
     return (
         <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.8, ease: "easeInOut" }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
             className="bg-surface text-on-surface font-body antialiased overflow-hidden min-h-screen"
         >
             <main className="pt-24 md:pt-32 pb-24 max-w-[1440px] mx-auto px-4 sm:px-6 md:px-12">
@@ -52,11 +139,17 @@ export default function ContactUs() {
                         <div className="space-y-12">
                             <ScrollReveal delay={0.2}>
                                 <div className="group">
-                                    <span className="block text-xs uppercase tracking-[0.2em] font-bold text-secondary mb-3 font-label">Contact Inquiries</span>
-                                    <a className="text-2xl md:text-3xl font-headline font-bold text-primary group-hover:text-secondary transition-colors" href="mailto:hello@pulleyinteriors.com">
-                                        hello@pulleyinteriors.com
-                                    </a>
-                                </div>
+                                        <span className="block text-xs uppercase tracking-[0.2em] font-bold text-secondary mb-3 font-label">Contact Inquiries</span>
+                                        <a className="text-2xl md:text-3xl font-headline font-bold text-primary group-hover:text-secondary transition-colors" href="mailto:projects@designpulley.com">
+                                            projects@designpulley.com
+                                        </a>
+                                        <div className="mt-4 flex items-center gap-4">
+                                            <a href="tel:+919876543210" className="inline-flex items-center gap-3 text-primary font-body font-medium">
+                                                <span className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary"><span className="material-symbols-outlined">call</span></span>
+                                                <span className="text-sm font-headline">+91 98765 43210</span>
+                                            </a>
+                                        </div>
+                                    </div>
                             </ScrollReveal>
                             
                             <ScrollReveal delay={0.3}>
@@ -73,13 +166,6 @@ export default function ContactUs() {
                                 </div>
                             </ScrollReveal>
                         </div>
-                        
-                        <ScrollReveal delay={0.4}>
-                            <div className="relative aspect-video rounded-[3rem] overflow-hidden bg-surface-container-low shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] group">
-                                <img className="w-full h-full object-cover grayscale opacity-90 group-hover:grayscale-0 group-hover:scale-105 group-hover:opacity-100 transition-all duration-1000" alt="Modern architectural studio interior" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlmUsjX4WT9RvIFcaep5-zwzocu40s3-pLfjjuDtDeRrQrYruyJ1_Jm0JvmlPtyQcWkR8quGF_7TVEuacInlb2HOvc-Vj6CMCum1nwyRqT_KPnlOBfcgYy7VjMbxM9cyoYsxZMaTe-IM7UuI7bQvF3e1UPTHvlLMoLFUDKheWDJUIIz0OlHHQznjIXgxWX-M6ZTzL7bZ7w6Xc-CqznNLiUoiVZgiRYzPwobmUqpd6slBDh8qOlI-g3sIe_snzmqHYB6PsUJAUM" />
-                                <div className="absolute inset-0 bg-primary/10 mix-blend-overlay group-hover:opacity-0 transition-opacity duration-1000"></div>
-                            </div>
-                        </ScrollReveal>
                     </div>
 
                     {/* Content Right: Focused Transactional Form */}
@@ -104,16 +190,12 @@ export default function ContactUs() {
                                         </div>
                                         <div className="space-y-2 group">
                                             <label className="block text-sm font-medium text-primary font-body">Project Type</label>
-                                            <div className="relative">
-                                                <select className="w-full bg-surface-container-low border border-outline-variant/20 rounded-[1.5rem] py-4 px-6 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-body text-base appearance-none text-on-surface" defaultValue="">
-                                                    <option disabled value="" className="text-on-surface-variant/40">Select an Option</option>
-                                                    <option value="retail">Retail Space</option>
-                                                    <option value="office">Corporate Office</option>
-                                                    <option value="hospitality">Hospitality</option>
-                                                    <option value="other">Other</option>
-                                                </select>
-                                                <span className="material-symbols-outlined absolute right-5 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
-                                            </div>
+                                            <CustomSelect 
+                                                value={selectedProjectType}
+                                                onChange={setSelectedProjectType}
+                                                options={projectTypes}
+                                                placeholder="Select an option"
+                                            />
                                         </div>
                                     </div>
                                     <div className="space-y-2 group">
