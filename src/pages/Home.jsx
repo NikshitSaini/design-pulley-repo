@@ -459,14 +459,14 @@ export default function Home() {
 
                         <div className="w-full max-w-5xl mx-auto">
                             <ScrollReveal delay={0.2}>
-                                <div className="bg-surface rounded-[3rem] p-8 md:p-16 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.08)] border border-outline-variant/10 flex flex-col items-center hover:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.12)] transition-shadow duration-700 group">
+                                <div className="bg-surface rounded-[3rem] p-8 md:p-16 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.08)] border border-outline-variant/10 flex flex-col items-center hover:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.12)] transition-shadow duration-700">
                                     <div className="relative w-full max-w-3xl overflow-hidden rounded-[2rem]">
                                         <img
-                                            className="w-full h-auto object-contain mix-blend-multiply opacity-90 group-hover:scale-110 transition-transform duration-1000 ease-out"
+                                            className="w-full h-auto object-contain mix-blend-multiply opacity-90 transition-transform duration-500 ease-out"
                                             alt="Map showing Design Pulley's pan-India presence"
                                             src="/stitch/pan-india-map.png"
                                         />
-                                        <div className="absolute inset-0 bg-primary/5 mix-blend-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none"></div>
+                                        <div className="absolute inset-0 bg-primary/5 mix-blend-overlay opacity-0 transition-opacity duration-500 pointer-events-none"></div>
                                     </div>
                                     
                                     <div className="mt-12 flex flex-wrap justify-center gap-4">

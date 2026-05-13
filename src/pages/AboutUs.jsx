@@ -126,7 +126,7 @@ export default function AboutUs() {
                         </ScrollReveal>
 
                         <div className="w-full max-w-5xl mx-auto">
-                            <ScrollReveal delay={0.2}>
+                            <div>
                                 <div className="bg-surface rounded-[3rem] p-8 md:p-16 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.08)] border border-outline-variant/10 flex flex-col items-center">
                                     <img
                                         className="w-full max-w-3xl h-auto object-contain mix-blend-multiply opacity-90"
@@ -143,7 +143,7 @@ export default function AboutUs() {
                                         ))}
                                     </div>
                                 </div>
-                            </ScrollReveal>
+                            </div>
                         </div>
                     </div>
                 </section>

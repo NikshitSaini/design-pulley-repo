@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 // Reusable scroll reveal component
 function ScrollReveal({ children, delay = 0, className = "", direction = "up" }) {
@@ -23,6 +24,7 @@ function ScrollReveal({ children, delay = 0, className = "", direction = "up" })
 }
 
 export default function Services() {
+    const navigate = useNavigate();
     return (
         <motion.div
             initial={{ opacity: 0 }}
@@ -284,10 +286,10 @@ export default function Services() {
                         <div className="max-w-3xl mx-auto px-4 sm:px-6 md:px-12 relative z-10">
                             <h2 className="text-on-primary font-headline text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter mb-12 leading-[1.1]">Ready to Elevate Your Commercial Footprint?</h2>
                             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                                <button className="w-full sm:w-auto rounded-full bg-surface text-primary px-8 py-4 font-headline font-bold tracking-[0.1em] hover:scale-105 transition-transform duration-300 shadow-xl">
+                                <button onClick={() => navigate('/contact')} className="w-full sm:w-auto rounded-full bg-surface text-primary px-8 py-4 font-headline font-bold tracking-[0.1em] hover:scale-105 transition-transform duration-300 shadow-xl">
                                     Schedule Consultation
                                 </button>
-                                <button className="w-full sm:w-auto rounded-full border border-on-primary/30 text-on-primary px-8 py-4 font-headline font-bold tracking-[0.1em] hover:bg-on-primary/10 transition-colors duration-300">
+                                <button onClick={() => navigate('/work')} className="w-full sm:w-auto rounded-full border border-on-primary/30 text-on-primary px-8 py-4 font-headline font-bold tracking-[0.1em] hover:bg-on-primary/10 transition-colors duration-300">
                                     View Portfolio
                                 </button>
                             </div>

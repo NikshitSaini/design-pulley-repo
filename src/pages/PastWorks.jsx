@@ -107,10 +107,6 @@ const projects = {
             {
                 "name": "Showroom Interior",
                 "file": "Showroom Interior.webp"
-            },
-            {
-                "name": "Staircase Area",
-                "file": "Staircase Area.webp"
             }
         ]
     },
@@ -231,6 +227,10 @@ const projects = {
             {
                 "name": "Store Interior Display",
                 "file": "Store Interior Display.webp"
+            },
+             {
+                "name": "GIVA Main Entrance",
+                "file": "GIVA Store Front.webp"
             },
 
         ]
@@ -481,16 +481,44 @@ export default function PastWorks() {
                                     <h3 className="font-headline text-2xl font-bold text-primary mb-8 border-b-2 border-primary/10 pb-4 inline-block">Project Gallery</h3>
                                     
                                     {/* Masonry-style Grid */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 grid-flow-row-dense">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 md:gap-8 grid-flow-row-dense">
                                         {activeProject.gallery.map((img, index) => {
-                                            // Make the first image larger (span 2 columns on large screens)
+                                            const totalItems = activeProject.gallery.length;
                                             const isLarge = index === 0;
+                                            
+                                            let lgColSpan = 'lg:col-span-2';
+                                            let lgRowSpan = '';
+                                            let lgAspect = 'lg:aspect-square';
+                                            
+                                            if (isLarge) {
+                                                lgColSpan = 'lg:col-span-4';
+                                                lgRowSpan = 'lg:row-span-2';
+                                                lgAspect = 'lg:aspect-auto';
+                                            } else {
+                                                const rem = totalItems % 3;
+                                                if (rem === 1 && index === totalItems - 1) {
+                                                    lgColSpan = 'lg:col-span-6';
+                                                    lgAspect = 'lg:aspect-[3/1]';
+                                                } else if (rem === 2 && index >= totalItems - 2) {
+                                                    lgColSpan = 'lg:col-span-3';
+                                                    lgAspect = 'lg:aspect-[3/2]';
+                                                }
+                                            }
+
+                                            let mdColSpan = 'md:col-span-1';
+                                            let mdAspect = 'md:aspect-square';
+                                            
+                                            if (totalItems % 2 !== 0 && index === totalItems - 1) {
+                                                mdColSpan = 'md:col-span-2';
+                                                mdAspect = 'md:aspect-[2/1]';
+                                            }
+
                                             return (
                                                 <motion.div 
                                                     key={index} 
                                                     onClick={() => setPreviewImage(img)}
                                                     whileHover={{ y: -5, scale: 1.02 }}
-                                                    className={`group relative bg-surface-container overflow-hidden rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer ${isLarge ? 'lg:col-span-2 lg:row-span-2 aspect-square lg:aspect-auto' : 'aspect-square'}`}
+                                                    className={`group relative bg-surface-container overflow-hidden rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer aspect-square ${mdAspect} ${mdColSpan} ${lgAspect} ${lgColSpan} ${lgRowSpan}`}
                                                 >
                                                     {/* Project Image */}
                                                     <img 
@@ -522,8 +550,8 @@ export default function PastWorks() {
                         <div className="absolute top-0 right-0 w-[50vw] h-[50vw] bg-[radial-gradient(circle,rgba(255,255,255,0.1)_0%,transparent_70%)] rounded-full pointer-events-none transform translate-x-1/2 -translate-y-1/2"></div>
                         <h2 className="text-on-primary font-headline text-4xl md:text-5xl font-extrabold mb-8 tracking-tighter relative z-10">Ready to build your space?</h2>
                         <p className="text-on-primary/80 mb-12 text-lg max-w-2xl mx-auto font-light relative z-10">Our team of architects and project managers are ready to bring your vision to life with uncompromising precision.</p>
-                        <div className="flex flex-col sm:flex-row justify-center gap-6 relative z-10">
-                            <button className="w-full sm:w-auto rounded-full bg-surface text-primary px-10 py-4 font-headline font-bold tracking-[0.1em] hover:scale-105 transition-transform duration-300 shadow-xl uppercase text-sm">Download Brochure</button>
+                            <div className="flex flex-col sm:flex-row justify-center gap-6 relative z-10">
+                            <a href="/files/Design_Pulley_Broucher.pdf" target="_blank" rel="noopener noreferrer" download className="w-full sm:w-auto rounded-full bg-surface text-primary px-10 py-4 font-headline font-bold tracking-[0.1em] hover:scale-105 transition-transform duration-300 shadow-xl uppercase text-sm">Download Brochure</a>
                             <button onClick={() => navigate('/contact')} className="w-full sm:w-auto rounded-full border border-on-primary/30 text-on-primary px-10 py-4 font-headline font-bold tracking-[0.1em] hover:bg-on-primary/10 transition-colors duration-300 uppercase text-sm">Schedule a Visit</button>
                         </div>
                     </div>
