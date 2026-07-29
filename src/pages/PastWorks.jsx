@@ -1,103 +1,374 @@
-import React, { useState, useRef } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
+
+// Reusable scroll reveal component
+function ScrollReveal({ children, delay = 0, className = "", direction = "up" }) {
+    const ref = useRef(null);
+    const inView = useInView(ref, { once: true, margin: "-50px" });
+    const yOffset = direction === "up" ? 30 : direction === "down" ? -30 : 0;
+    
+    return (
+        <motion.div
+            ref={ref}
+            initial={{ opacity: 0, y: yOffset }}
+            animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: yOffset }}
+            transition={{ duration: 0.8, delay: delay, ease: [0.22, 1, 0.36, 1] }}
+            className={className}
+        >
+            {children}
+        </motion.div>
+    );
+}
 
 const projects = {
-    'livspace': {
-        title: 'Livspace',
-        shortDesc: 'Headquarters & Experience Center in Bangalore.',
-        desc: 'Creating a hybrid environment that functions as both a high-performance workplace and a tactile showroom for home design inspiration.',
-        spec1: 'Bangalore, IN',
-        spec2: '45,000 SQ.FT',
-        quote: '"Pulley translated our brand vision into a physical space that feels both aspirational and deeply functional."',
-        citeName: 'Anuj Srivastava',
-        citeTitle: 'CEO, Livspace',
-        banner: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCxrnh17HZyK8Wt_2KfUwSE500iPIJqU24NtOAJ_qFCfFALnlgdUxxDF3Aky8FewYDFn9fraYOWYOWdc8RmsLX0T8pCGJGtGUpJvj36Epa9mdKbklm_FxDXpKHLG-_Mmt4N5GrYY0AkIYqIbhEW6yfRdZiOVGF3F5mvGatvY7BTpxgwPKwBsH3DcXHLaSquRfDAjzzPbM1oY-cNnaqxl84TJyjg4okOv9pm5nacpw4zYineTM7c1Ws8qBCXnx-gWz9dQksRjPRH',
-        gallery: [
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuCzyEQVr5_rNdUDrJ66APLZ1t5LIOcV-8eQ7sykzcQcY8FCJ215-cQPn1kg4rMT6_F6IyhdlYVHcmuGMkveCU8upVrHde2sJY47_2-lgGwVvBU9mon82facD51qsNUCJx0viy6atGHCHPtI-2_lhEmCBT7XyQwYF-I2X9AuiFXAgMfTVN6iIuuaM6erzZUnGeBomnUDO4bTDpT9COb-ckxqfpsptkj-v3frvyDfFc5tFkzXxpjhEXK5Pzsk2gEqzXOfg8Uk9v5c',
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuDCeF0XzTK4NPfgHxuJQGFzjravY5TCRzaEDRF_zV_LfghDQ2BRln5Uad9KcjICJyXMgp-at35hoEQaa-x-RrHENrt4xUDQStWuQe3cbpr95MU_avGyOeIt8ZPH8Bhdh1XMx60NtheqDwIl5tiWgWeFA-dRhHgyb4jxQd5PinTYofC6upA0nASMNd1ylYNUiPnglfgvc0vZq4uEIpaDOqVqLzvObbtcvsgAjDr67dIW58JJAJYmtsMqIfNXJb4Iazbr9J6AmGif',
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuDSqPIjAjoRdAlxl_jQ-XMe8cAckjPVsy0O_AYA0vv2MLqCsC1gwWxRnXWoZaEih-o7FzM6SXcT8Ghi2VA0ie622uncR851X_pk4xssS9bRk97cOnmlVGJ5Xuxa_iWNNDcm7_PEF9KGxvNBnZMhL6KlD3utGpBbkBTBRxRkRkIluIOQPBK-Z5tuSBeZfOuZEdxGX7gMHwQI88o_kX_Cq0XWW162tMfKScgrUpBO7kIGG_Qnn9rqonQ6W3CWsLlwKWyBbjjAqnv-',
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuAZeuhPJF_0QpbIkWYLc0w0euVainwi3T9JbM6Socn0_wgnN7z2PcslughHZBHfiTKarXhQx7KD4MW8UoIW0czW_jk2X2EsCB0sxPhqLZpGFNYHW3FrrjRA1KtKLo4iIZLf7MIdOo2XdF2vI5Ztl_GQnWV8zeTyKmVFaKhgIVNEgNzTfuv7v3uVu8qk5AGFqVH9ukITdEOs3hhbcgi17jiaD83NETiulBrcpPEuRuiYiIWMDswz7RiEmQdXVOZtoSazb_dOCO2o'
+    "lladro": {
+        "title": "LLADRÓ",
+        "shortDesc": "Spain's Luxury Figurines, Delhi",
+        "desc": "Executed three luxury flagship projects across Delhi NCR and Chennai. Provided complete Project Management Consultancy and bespoke furniture execution for spaces up to 7,500 sq. ft.",
+        "quote": "\"Thank you Akash Lakdawala, Anurag Lohia and team for helping us with this dream project. Truly admire your passion, commitment and attention to detail. So professional in your approach with amazing energy levels made you unstoppable! So happy that we chose your team. Just keep it going. Wishing you loads of success!\"",
+        "citeName": "Nikhil Lamba",
+        "citeTitle": "CEO, Lladró India",
+        "banner": "https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&q=80",
+        "folder": "llardo",
+        "gallery": [
+                        {
+                "name": "Firefly Collection Display",
+                "file": "Firefly Collection Display.webp"
+            },
+            {
+                "name": "Arch Cabinets",
+                "file": "Arch Cabinets.webp"
+            },
+            {
+                "name": "Figurine Display Wall",
+                "file": "Figurine Display Wall.webp"
+            },
+            {
+                "name": "Figurines Wall",
+                "file": "Figurines Wall.webp"
+            },
+
+            {
+                "name": "Grand Showroom Interior",
+                "file": "Grand Showroom Interior.webp"
+            },
+            {
+                "name": "Grand Showroom Overview",
+                "file": "Grand Showroom Overview.webp"
+            },
+            {
+                "name": "Lladró Chandelier Gallery",
+                "file": "Lladró Chandelier Gallery.webp"
+            },
+            {
+                "name": "Reception & Display",
+                "file": "Reception & Display.webp"
+            },
+            {
+                "name": "Showroom Interior",
+                "file": "Showroom Interior.webp"
+            }
         ]
     },
-    'clove': {
-        title: 'Clove Dental',
-        shortDesc: 'Pan-India premium clinical network rollout.',
-        desc: 'Modular design systems implemented across 50+ locations, emphasizing clinical sterility with hospitality-inspired comfort.',
-        spec1: 'Healthcare/Retail',
-        spec2: 'Rollout 2023-24',
-        quote: '"Scaling our presence required a design partner who understood consistency without sacrificing character."',
-        citeName: 'Dr. Amar Singh',
-        citeTitle: 'Operations Director, Clove Dental',
-        banner: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAsyAEUW-bq2l0_aTSDSN8sE9_fg_cRR1RGjnFHYd47E224Ylbbi1jDpJ3XL1JG66UVdVh23t_NqD3PUDs-lV3LfJIoD8FxXlfaZ3abCUks2XIn8of5lkQCz34WlUk36UTP1AVmycOew5YnpVPAY_nEQULIlAgdqwDaPu4Q8iniw_jVxPfMM8SAVrQRcjxj4io5uAukLpRbw5pWWtmYqyiomBahJKbXFsV56nGd-xTER3kRAHCdUMPfQQU7x9J-1iYhNhN_vlDb',
-        gallery: [
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuDgkZwmHAss7WASj594MY62Dzzyse2niTVVkkstIe9hHITbCeVHNcBmpu8vWrVIJpj5n4ENUG13xZ9J2mkojNVLdNHTle1LIhtCNy2W9jL8Da98NKHYb04_IQioNgiEpE9-xFd4OczD7nmxLKdkKOhxt8iVhX_2ID9-2gEndR0nuKvZXBO4i5TT6wY_Cd4Th9haOSfE_wjSgOjPv0qsPRds-gaARQiMXitJOIKSspgCeN_J9Qg12Hyr_xVnYAKvSexmQietJJRP',
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuAWfFRbJkvq5KchljxnwFzxhZV15QzkvsDJooMfQc-k_Qr9IqfuqldJaA2eRFXFL9REpVwGJk46PkYFftCte22XEoUkls2ghC4IerB-lRnBYtn2CZi7i_BJdqCYCYSXMRULhRAQOoIzbb6b4yrm_zT_ayJEWrRwNrye9Lfk2D7ZKHgrYsJB_e1v_kZBW7544pOF5Zg_HINcW5lgXyJHje1kD4cW6RVAypGpmMd09hd_iP8PCDKTFoY9lH3BkBR9xyQ4FePG3HTr',
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuAaxoTn7UoBxUac6_U6NGMgfaqC2darSChPbMOuRqJWhL_XsOqFGOQWcswvvOTNkDZMz9h6WqoOWU48NxqjAEa-J7a9KFw2JOnLvEMpQlDRx7yrBG86c5zEvWvAqxzPSAOPMqE1JNUtJxgBuihJBmzt4euEYlu9T_u5nZ4Sfwfs6vZIynLB3P7JUNWfLj2GlzX3xluk_nf18Ebpoa_JD85Rwen3eVpBiYQOLpgQnXat-sze3Cx68T4vz9jFK08chMsQPdG830kP',
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuBj9DTLFxS1Jxi8HWLHI6vVKF7J38E9-xoz8rZfdyk3gq1xeEm_-xmwsKk8-RVQknZ8y7hWuUHPrLkjeTCcZAOZgPXZirTbSqq6vJc8jZjFlcrNYPfpX5ndKFt9z2OGG7MVj7R9UwoPVrHyl8w_TobgegDZXjbA-FWBWllIwl1nINFke5jKWxGRZTolFUVZPHztjfUNVX1Lf6Gm5vQiMRe-14-0hn6ukb2XQYEHWXvvjEPt9OILSwqoyaOGEctrtTtMTOPFh-5r'
+    "livspace": {
+        "title": "LIVSPACE CASANTRO",
+        "shortDesc": "Premium Retail Outlets",
+        "desc": "Delivered 10+ premium retail and experience centers across India. Successfully executed large-format showrooms, office-cum-display centers up to 7,000 sq. ft., and over 100 residential projects.",
+        "quote": "\"We have strong relationship with Design Pulley team and they have successfully executed experience center for us. We rely on their service PAN India and are satisfied with their output. They are focused on delivering projects on time and we appreciate their communication skills.\"",
+        "citeName": "Sailesh Tiwari",
+        "citeTitle": "Project Lead, Livspace",
+        "banner": "https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&q=80",
+        "folder": "Livspace Casantro",
+        "gallery": [
+                        {
+                "name": "Luxury Kitchen Display Area",
+                "file": "Luxury Kitchen Display Area.webp"
+            },
+                        {
+                "name": "Showroom Display Area",
+                "file": "Showroom Display Area.webp"
+            },
+            {
+                "name": "Display Unit Area",
+                "file": "Display Unit Area.webp"
+            },
+            {
+                "name": "L Shape Kitchen Area",
+                "file": "L Shape Kitchen Area.webp"
+            },
+            {
+                "name": "Livspace Store Front",
+                "file": "Livspace Store Front.webp"
+            },
+
+
+            {
+                "name": "Showroom Interior",
+                "file": "Showroom Interior.webp"
+            }
         ]
     },
-    'lladro': {
-        title: 'Lladró',
-        shortDesc: 'Luxury flagship retail gallery experience.',
-        desc: 'A gallery-first approach to retail. Every shadow and highlight was engineered to showcase the intricate detail of handcrafted porcelain.',
-        spec1: 'Suede & Brass',
-        spec2: 'Custom LED Matrix',
-        quote: '"The lighting and material palette elevated our products from inventory to art. Simply impeccable."',
-        citeName: 'Retail Manager',
-        citeTitle: 'Lladró Flagship',
-        banner: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBqYepbg1-SjL-1y3noI2tfwdTxajWLZ85pGIf7qCRGn9q-n2TAe7GObcBa8XZTAlJMYj87uQvCwRFbY8_O0NT1geDRfzK7psGOJHTJJbgG5kBbboH9_Wx_77gflz7RF4pVJqef2PvC_q8bRftPTYEhIcyB1xkcRnuXtnBJ9D3SDsMsNiGQAaLs1DaB6gg4vHpvQJXThcaRTxw5D8hIlCZq3INX6ckx5L8smoQZQsRBeHq5TAiTDfchK6QbVKAr5WlWyswpQMiH',
-        gallery: [
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuDNXbwmKyON6a3TB-BbRpTr1mvlHNPIx_uPJH4GGyK9zIwrrXpydgeq5szlOVd1N-NaBlRgZXSyYblvkJpdu7brOWKXt1Uua8-z3CYkwMU7Kb2rwzqFf-NNU95M4GHRkD9M_rGNgj_vRHE5SPYMl3xUGJ6oZpQjd8ldOHxsRjD4RqOIza4MQP16ZohIOTXrGthryTn74fB5Wiu7bjgn1A-a15gnKm6rkAKfVDIx9CiNzOyST3t8_VpeaPwnLtu32g6eI7y_UU35',
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuD2IBSU98gns-nmmBvIgrgNDLkw225_zfWiR8CRmXSCjyr6rV-LFUPQEEFChe82WMrd9fBO6j6c4N4G-R3LDvv1FUqqaLT6_k5y0IzUFM7I5Jbw35oIQAhgeRLWQU0T9j4kcPsbO93gR5TtLDdJdm4JNY_3gOdbahFNzMZpFOggitc-LdYr9K24nrlQ-zqTzD_IqGR24We_JDzIA5wPVc5l2Z3K8_QYWoRtujPnCDN-UcLniTaqHSZlKB05jppyXTlqzIt0fkbn',
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuCyEJXb2_g4xtjKd4P_jb3Rxmu4CRQevTqqkpu5EqLK3r1BD3TpN72OPVitTNWwoctZNm_L4Y7Ref0hdc5hvv_H4RxSJmYsDYA8NOIgvZtajMJdB_oUhUJhc_N14Bm3mxVXj_oKqGx97RiK2bRXe_AXtN-nvqprh06wHWQVxfJawgrMBSGQ2IU_d6Y_aIGq0bCcKr_k56Lu6WZTFXICWbH8webLHlna4UQC4CnapjGXao57jLmkfTTgonvqYvRMU6M5SICpcX7_',
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuDNXbwmKyON6a3TB-BbRpTr1mvlHNPIx_uPJH4GGyK9zIwrrXpydgeq5szlOVd1N-NaBlRgZXSyYblvkJpdu7brOWKXt1Uua8-z3CYkwMU7Kb2rwzqFf-NNU95M4GHRkD9M_rGNgj_vRHE5SPYMl3xUGJ6oZpQjd8ldOHxsRjD4RqOIza4MQP16ZohIOTXrGthryTn74fB5Wiu7bjgn1A-a15gnKm6rkAKfVDIx9CiNzOyST3t8_VpeaPwnLtu32g6eI7y_UU35'
+    "sleep": {
+        "title": "THE SLEEP COMPANY",
+        "shortDesc": "Retail Innovation & Store Fit-outs",
+        "desc": "Executed comprehensive store fit-outs, VM, and branding works across 10+ key cities. Delivered complete turnkey solutions including furniture and façade execution within aggressive one-month timelines.",
+        "quote": "\"Design Pulley have been working on our various projects and have always been completely satisfied with their performance. They do an excellent job, are always punctual, and offer the most competitive rates in town. I'm happy to recommend Design Pulley.\"",
+        "citeName": "Paresh Ladwa",
+        "citeTitle": "Project Manager, The Sleep Company",
+        "banner": "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&q=80",
+        "folder": "The Sleep Company",
+        "gallery": [
+                        {
+                "name": "Showroom Overview",
+                "file": "New/Showroom Overview.webp"
+            },
+            {
+                "name": "Elev8 Smart Royale Bed Display",
+                "file": "Elev8 Smart Royale Bed Display.webp"
+            },
+            {
+                "name": "Store Front Banner",
+                "file": "FA4BB863-05F5-4520-B6CD-37522F6DC72F.webp"
+            },
+            {
+                "name": "Brand Wall Display",
+                "file": "New/Brand Wall Display.webp"
+            },
+            {
+                "name": "Elev8 Smart Royale Bed Display",
+                "file": "New/Elev8 Smart Royale Bed Display.webp"
+            },
+            {
+                "name": "Mattress Display Zone",
+                "file": "New/Mattress Display Zone.webp"
+            },
+            {
+                "name": "Reception Counter",
+                "file": "New/Reception Counter.webp"
+            },
+
+            {
+                "name": "SmartGRID Display Wall",
+                "file": "New/SmartGRID Display Wall.webp"
+            },
+            {
+                "name": "Store Facade",
+                "file": "New/Store Facade.webp"
+            }
         ]
     },
-    'sleep': {
-        title: 'The Sleep Company',
-        shortDesc: 'Retail innovation labs and sensory pods.',
-        desc: "Transforming sleep science into a sensory physical experience. We created immersive 'Sleep Pods' that isolate sound and light.",
-        spec1: 'Retail Tech',
-        spec2: 'Sound Isolation',
-        quote: '"An execution that truly reflects the technical DNA of our brand. Impeccable attention to detail."',
-        citeName: 'Brand Director',
-        citeTitle: 'The Sleep Company',
-        banner: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDjn10ow22nqy9HxckaHpsSQOUNS55rycC_jrqByK5krCaNg_AIsbhLp1vbSSzLeHUnYQEXD2q36BxpS0-5v4voBcji5yL39i06y-t5d7n4tiPXRnNGViQ5t8xA7kkcsk3lXB6ZAj1l1k-ZNYx4u2NHyGCkvXT1oFlvkxP7mb5epZfR-2c_xW6S--Pbx0BL_pLdjkm7ZQfTSuXcmh7_7k2tzU4qqx9Ez7KsYf89oiZODceDKpvFE5ubprEmpswSeLx30o4NhrIK',
-        gallery: [
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuDjn10ow22nqy9HxckaHpsSQOUNS55rycC_jrqByK5krCaNg_AIsbhLp1vbSSzLeHUnYQEXD2q36BxpS0-5v4voBcji5yL39i06y-t5d7n4tiPXRnNGViQ5t8xA7kkcsk3lXB6ZAj1l1k-ZNYx4u2NHyGCkvXT1oFlvkxP7mb5epZfR-2c_xW6S--Pbx0BL_pLdjkm7ZQfTSuXcmh7_7k2tzU4qqx9Ez7KsYf89oiZODceDKpvFE5ubprEmpswSeLx30o4NhrIK',
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuB2Dw8lyAoiCftQ7hswW3Xayt7b0-7mF6jhdmxhO-k5r7j5xYMAalnbMFgJcrfCyYr-ciX49z21H0KujhQj4zwpfLg2RPr2SRa2F2SohS6n7C_LaprufEe53UkZ6cfKl7KhwJiXoZH2mUUJbur9bw3gKixmpTjIRrM7tu9sP995aK9MmE9-G4XAL1svhrLCm-EDORf19I-f_aau8SafgsbGj9yH89FnMnaUS-YbIow2eQpfXffm4DWy-V49il2eDzd9wm1KHGdy',
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuB7ZrcwvjZnaKLDuGpzvXb-4GB0I8XQ7jLJiUNfRzaFhf7TCrCyiPkXrliCNLRjps5l9g714l1LjR98hs7j-CoXoWaggkRcLlU4lHNKduc7pO-0riVCiSUGRMsaHB5ydUh4G3kztD2FbbB5t8-OWgxI6a3AqlnuPnZwSMTaq5uUxKUUCR9-cWfkHovYq6eBDie9gGIsvIKgY6BZSax2jNxbS4fxgvbvelTBUDS9eg3w10uU6v13eP7s2Rzzjjxj199eUrvoJdxD',
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuCvXE6sptTDzfcC_oRNXLWyJ_53hV0mNCjGmTTBJiy42QEu0pqcs8s3a1ewoaZTmx6EP8ya2vjH4MA5B7AL64bJhVvvn_rFBISeCBeCnpyOmyr1yDr6pKanlzTfQQ-hlQMuZSzqnoyvSeoIUEYAmSTCX3KluFAS_C6L14CmVviYc4rDTZF0vJAeOa89r2evpFmIWjvS-XqK-fCq-ElscpTM4NpynVcKPlXJyxcAi0I8Mjt9ddPq6Ue7O-efipqRJbaV6H6QFyTH'
+    "clove": {
+        "title": "CLOVE DENTAL",
+        "shortDesc": "India's Largest Dental Chain",
+        "desc": "Delivered 30+ premium dental clinics across India over three years. Specialized in high-speed, end-to-end clinical fit-outs within 20-25 day timelines ensuring strict medical and aesthetic standards.",
+        "quote": "\"I am pleased to share that Design Pulley has been a preferred vendor for Clove Dental, consistently delivering high-quality work across multiple locations, including Delhi, Jaipur, and Ahmedabad. Their commitment to excellence and professionalism has met our expectations, and we are very satisfied with their service. We confidently recommend Design Pulley for future projects, as their approach aligns well with our standards and requirements.\"",
+        "citeName": "Taranjeet Singh",
+        "citeTitle": "Project Manager, Clove Dental",
+        "banner": "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&q=80",
+        "folder": "Clove Dental",
+        "gallery": [
+                        {
+                "name": "Main Entry Area",
+                "file": "Main Entry Area.webp"
+            },
+                        {
+                "name": "Waiting Area",
+                "file": "Waiting Area.webp"
+            },
+            {
+                "name": "Doctor Room",
+                "file": "Doctor Room.webp"
+            },
+            {
+                "name": "Doctor Room2",
+                "file": "Doctor Room2.webp"
+            },
+
+            {
+                "name": "Operatory Room",
+                "file": "Operatory Room.webp"
+            },
+            {
+                "name": "Reception Area",
+                "file": "Reception Area.webp"
+            },
+
         ]
     },
-    'abcoffee': {
-        title: 'abCoffee',
-        shortDesc: 'Efficient urban micro-café deployments.',
-        desc: "Rapid-rollout micro-cafés that don't compromise on aesthetic. Design for efficiency, flow, and the modern urban consumer.",
-        spec1: '12 Units',
-        spec2: 'Rapid Turnaround',
-        quote: '"The fastest turnaround we\'ve experienced without a single corner cut on quality."',
-        citeName: 'Abhishek Lodha',
-        citeTitle: 'Founder, abCoffee',
-        banner: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDz2FFA25Q7u7J1sIuNDHXQl0vyGAvDYCzXGikXj7JIPjVPn6qNw67tjS7mhxuAKfFPM1glpIwwQUjBgpuQvkMXwUpYcbQ2MuF43Q87CpKDqvQgGImkHg9-8d4c9E7-Sxa-XFUmQUjMfn5RAOwzBQXDbpKn1MsrtB0ek7VDEvMoYmImxRYTxQRunNK3Y25tOwaRFiZdBqL47R5BQPlZRcLavm0fIQYgvva9rQRdFbKZV5afbhnA_kCHjF31T85GX2OxYul9dLZ8',
-        gallery: [
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuDz2FFA25Q7u7J1sIuNDHXQl0vyGAvDYCzXGikXj7JIPjVPn6qNw67tjS7mhxuAKfFPM1glpIwwQUjBgpuQvkMXwUpYcbQ2MuF43Q87CpKDqvQgGImkHg9-8d4c9E7-Sxa-XFUmQUjMfn5RAOwzBQXDbpKn1MsrtB0ek7VDEvMoYmImxRYTxQRunNK3Y25tOwaRFiZdBqL47R5BQPlZRcLavm0fIQYgvva9rQRdFbKZV5afbhnA_kCHjF31T85GX2OxYul9dLZ8',
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuCZGtAFv-9bbHK3gfrw4rFx7swJNZMvVims6aFrSLwoViW1WmV-2B0HvnB6Vl6mDyUYRdFeTLyHz_yje8RkHyHRwxyrpmeMZnl5_Zu9-yoTm4M_xPLvDSnZMTaa5aXdzqNA-F2RNyCjKCBBTuu33kvQaOQ8J82ZTc6uP_m962cGGj6KLQjBVuXTDG5p-95Bgb0mBODmRJy5GHgSIxKYymKjazIXKsAWSCN-B8prEcXqpYcO4xqmmFSSa9c4iPW6jFDHqtSnnXw6',
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuCbNYGaRdpr89ZiuvDI4P3XzUWZqoUtYnf8a7iylhJx5p7nxKE5FNygkdJuqGM8KRbuPBT4APYN3tiEjAzzpTqNZTG_m89x1eGbSXFhs7pDYtzuu5Sn9adLr0TNcr2vZ0ixmj70cXNDdKZBJpYq5xqkq-Yz10gDoxWUDCcUI1G2x7qbz_rmc32nfBSs5pwE-IXkxKQXZhxASgMYvc0Hyp7lGeTUtelPt1PrYIOz-QxETr4IGXB0L-IvhG4fEVPApxw_4GSt7szK',
-            'https://lh3.googleusercontent.com/aida-public/AB6AXuDz2FFA25Q7u7J1sIuNDHXQl0vyGAvDYCzXGikXj7JIPjVPn6qNw67tjS7mhxuAKfFPM1glpIwwQUjBgpuQvkMXwUpYcbQ2MuF43Q87CpKDqvQgGImkHg9-8d4c9E7-Sxa-XFUmQUjMfn5RAOwzBQXDbpKn1MsrtB0ek7VDEvMoYmImxRYTxQRunNK3Y25tOwaRFiZdBqL47R5BQPlZRcLavm0fIQYgvva9rQRdFbKZV5afbhnA_kCHjF31T85GX2OxYul9dLZ8'
+    "giva": {
+        "title": "GIVA",
+        "shortDesc": "Silver | Gold | Lab Grown Diamonds",
+        "desc": "Executed seamless retail projects combining civil, interior, and VM works for premium jewelry showrooms in Delhi and Noida.",
+        "quote": "\"We are pleased to share that Design Pulley has been a trusted partner for GIVA, consistently delivering high-quality work across multiple project locations. Their strong commitment to excellence, attention to detail, and professional approach have consistently met our expectations. We are highly satisfied with their services and would confidently recommend them for future projects, as their standards align seamlessly with our expectations.\"",
+        "citeName": "Kuldeep",
+        "citeTitle": "Project Manager, GIVA",
+        "banner": "https://images.unsplash.com/photo-1573408301145-b98c41470ce0?auto=format&fit=crop&q=80",
+        "folder": "Giva",
+        "gallery": [
+                        {
+                "name": "GIVA Store Front",
+                "file": "GIVA Store Front.webp"
+            },
+                        {
+                "name": "Store Interior",
+                "file": "Store Interior.webp"
+            },
+            {
+                "name": "Billing Counter",
+                "file": "Billing Counter.webp"
+            },
+            {
+                "name": "Ceiling Area",
+                "file": "Ceiling Area.webp"
+            },
+
+            {
+                "name": "Store Interior Display",
+                "file": "Store Interior Display.webp"
+            },
+             {
+                "name": "GIVA Main Entrance",
+                "file": "GIVA Store Front.webp"
+            },
+
+        ]
+    },
+    "ajay": {
+        "title": "AJAY'S FOOD COURT",
+        "shortDesc": "Appy Wali Feeling",
+        "desc": "Delivered a large-format 3,000 sq. ft. flagship F&B outlet in Navsari. Managed complete execution of fine-dine areas, party rooms, and commercial kitchens within 45 days.",
+        "quote": "\"Design Pulley transformed our vision into reality with exceptional craftsmanship. From the vibrant red-and-white interiors to the warm wooden flooring and custom lighting, every detail reflects our brand’s energy. The team delivered on time and exceeded our expectations. We’re proud to welcome our guests to this space.\"",
+        "citeName": "Ajay Patel",
+        "citeTitle": "Founder, Ajay’s Food Court",
+        "banner": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80",
+        "folder": "Ajays final",
+        "gallery": [
+            {
+                "name": "Dining Hall",
+                "file": "Dining Hall.webp"
+            },
+            {
+                "name": "Interior Overview",
+                "file": "Interior Overview.webp"
+            },
+            {
+                "name": "Order Counter",
+                "file": "Order Counter.webp"
+            },
+            {
+                "name": "Outdoor Seating",
+                "file": "Outdoor Seating.webp"
+            },
+            {
+                "name": "Pantry & Kitchen",
+                "file": "Pantry & Kitchen.webp"
+            },
+            {
+                "name": "Store Façade In Night",
+                "file": "Store Façade In Night.webp"
+            }
+        ]
+    },
+    "abcoffee": {
+        "title": "AB.COFFEE",
+        "shortDesc": "Specialty Coffee Brewed Honestly",
+        "desc": "Delivered modular, highly-efficient kiosk solutions and mall outlets with complete integration of plumbing, electrical, and display systems in record 20-25 day timelines.",
+        "quote": "\"Design Pulley is our preferred partner for turnkey project execution of our retail outlets. They deliver projects on time and satisfactory to our quality standards. I recommend them for project execution of new stores.\"",
+        "citeName": "Vishi Reja",
+        "citeTitle": "Project Head, ab.Coffee",
+        "banner": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&q=80",
+        "folder": "Abcoffee",
+        "gallery": [
+            {
+                "name": "Cafe Ambience",
+                "file": "Cafe Ambience.webp"
+            },
+            {
+                "name": "Counter & Seating",
+                "file": "Counter & Seating.webp"
+            },
+            {
+                "name": "Kiosk Facade",
+                "file": "Kiosk Facade.webp"
+            },
+            {
+                "name": "Seating Area Overview",
+                "file": "Seating Area Overview.webp"
+            },
+            {
+                "name": "Store Interior & Signage",
+                "file": "Store Interior & Signage.webp"
+            }
+        ]
+    },
+    "shankari": {
+        "title": "SHANKARI ENT CLINIC",
+        "shortDesc": "Healing Hope Health",
+        "desc": "Executed a state-of-the-art specialty clinic balancing medical precision with patient comfort. Delivered premium interiors with a custom mint green and gold aesthetic in 40 days.",
+        "quote": "\"Design Pulley designed our clinic beautifully — the mint green palette, elegant arched corridor, and gold accents create a calming, premium atmosphere for our patients. Every space, from reception to consultation rooms, reflects care and thoughtfulness. We are truly delighted with the outcome.\"",
+        "citeName": "Dr. Monika Bansal",
+        "citeTitle": "Senior ENT Specialist, Shankari ENT Clinic",
+        "banner": "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80",
+        "folder": "Shankari ENT clinic",
+        "gallery": [
+            {
+                "name": "Reception Area",
+                "file": "Reception Area.webp"
+            },
+            {
+                "name": "Clinical Room",
+                "file": "Clinical Room.webp"
+            },
+            {
+                "name": "Consultation Room",
+                "file": "Consultation Room.webp"
+            },
+            {
+                "name": "Doctor’s Cabin",
+                "file": "Doctor’s Cabin.webp"
+            }
+            
         ]
     }
 };
 
 export default function PastWorks() {
-    const [activeId, setActiveId] = useState('livspace');
+    const location = useLocation();
+    const [activeId, setActiveId] = useState(location.state?.clientId || 'lladro');
+    const [previewImage, setPreviewImage] = useState(null);
+    const navigate = useNavigate();
     const detailRef = useRef(null);
+
+    useEffect(() => {
+        if (location.state?.clientId && projects[location.state.clientId]) {
+            setActiveId(location.state.clientId);
+            setTimeout(() => {
+                if (detailRef.current) {
+                    const yOffset = -120; 
+                    const y = detailRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                    window.scrollTo({ top: y, behavior: 'smooth' });
+                }
+            }, 100);
+        }
+    }, [location.state]);
+
+    useEffect(() => {
+        if (previewImage) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [previewImage]);
 
     const selectProject = (id) => {
         setActiveId(id);
         if (detailRef.current) {
-            // Scroll visually to the detail container with an offset for the fixed navbar
-            const yOffset = -100; 
+            const yOffset = -120; 
             const y = detailRef.current.getBoundingClientRect().top + window.pageYOffset + yOffset;
             window.scrollTo({ top: y, behavior: 'smooth' });
         }
@@ -107,112 +378,221 @@ export default function PastWorks() {
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4 }}
+            className="bg-surface font-body text-on-surface antialiased overflow-hidden min-h-screen"
         >
-            <main className="pt-20">
-                {/* Hero Header */}
-                <header className="pt-24 pb-12 px-12 max-w-[1440px] mx-auto">
-                    <div className="max-w-4xl">
-                        <span className="font-label text-xs uppercase tracking-[0.2em] text-secondary font-semibold mb-4 block">Past Works</span>
-                        <h1 className="font-headline text-6xl md:text-7xl font-extrabold tracking-tighter text-primary leading-[1.1]">
-                            Built Environments <br /> <span className="text-secondary">Executed with Poise.</span>
+            <main className="pt-24 md:pt-32 pb-24">
+                
+                {/* Header */}
+                <header className="px-4 sm:px-6 md:px-12 max-w-[1440px] mx-auto mb-16 md:mb-24 text-center">
+                    <ScrollReveal>
+                        <span className="font-label text-xs uppercase tracking-[0.3em] text-secondary font-semibold mb-6 inline-block py-1 px-4 rounded-full border border-secondary/20 bg-secondary/5">Past Works</span>
+                        <h1 className="font-headline text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tighter text-primary leading-[1.1]">
+                            Built Environments <br className="hidden md:block"/> 
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Executed with Poise.</span>
                         </h1>
-                    </div>
+                    </ScrollReveal>
                 </header>
 
-                {/* Interactive Selection Grid */}
-                <section className="px-12 max-w-[1440px] mx-auto mb-20">
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                        {Object.entries(projects).map(([id, data]) => {
-                            const isActive = activeId === id;
-                            return (
-                                <button
-                                    key={id}
-                                    onClick={() => selectProject(id)}
-                                    className={`flex flex-col p-6 text-left transition-all group ${
-                                        isActive 
-                                            ? 'border-primary bg-white shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1)] border-2' 
-                                            : 'border border-outline-variant bg-white/50 hover:bg-white'
-                                    }`}
-                                >
-                                    <span className="font-headline font-extrabold text-primary text-xl mb-2">{data.title}</span>
-                                    <p className="text-xs text-secondary leading-relaxed font-medium">{data.shortDesc}</p>
-                                </button>
-                            );
-                        })}
-                    </div>
+                {/* Horizontal Scrolling Pill Tabs */}
+                <section className="px-4 sm:px-6 md:px-12 max-w-[1440px] mx-auto mb-16 md:mb-24">
+                    <ScrollReveal delay={0.2}>
+                        <div className="flex overflow-x-auto pb-6 hide-scrollbar gap-4 snap-x snap-mandatory">
+                            {Object.entries(projects).map(([id, data]) => {
+                                const isActive = activeId === id;
+                                return (
+                                    <button
+                                        key={id}
+                                        onClick={() => selectProject(id)}
+                                        className={`snap-center shrink-0 flex flex-col justify-center items-center px-8 py-5 transition-all duration-500 rounded-[2rem] border min-w-[200px] ${
+                                            isActive 
+                                                ? 'border-primary bg-primary text-white shadow-[0_15px_30px_-10px_rgba(0,0,0,0.3)] scale-105' 
+                                                : 'border-outline-variant/30 bg-surface-container-lowest text-primary hover:bg-surface-container-low hover:border-primary/30'
+                                        }`}
+                                    >
+                                        <span className={`font-headline font-extrabold text-lg mb-1 transition-colors ${isActive ? 'text-white' : 'text-primary'}`}>
+                                            {data.title}
+                                        </span>
+                                        <span className={`text-[10px] font-medium uppercase tracking-widest transition-colors ${isActive ? 'text-white/70' : 'text-secondary'}`}>
+                                            {id}
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </ScrollReveal>
                 </section>
 
-                {/* Detail Section Container */}
-                <section className="pb-32" ref={detailRef}>
-                    <motion.div 
-                        key={activeId}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4 }}
-                        className="max-w-[1440px] mx-auto px-12 space-y-16"
-                    >
-                        {/* 1. Hero/Banner Image */}
-                        <div className="w-full h-[400px] bg-surface-container overflow-hidden rounded-sm">
-                            <img alt="Project Banner" className="w-full h-full object-cover" src={activeProject.banner} />
-                        </div>
+                {/* Project Detail Section */}
+                <section ref={detailRef} className="px-4 sm:px-6 md:px-12 max-w-[1440px] mx-auto">
+                    <AnimatePresence mode="wait">
+                        <motion.div 
+                            key={activeId}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ duration: 0.5, ease: "easeInOut" }}
+                        >
+                            {/* Project Banner & Content Area */}
+                            <div className="bg-surface-container-lowest rounded-[3rem] p-6 md:p-12 border border-outline-variant/10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] mb-12">
+                                
+                                {/* Info & Quote Grid */}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-20 items-start mb-16">
+                                    {/* Left: Project Details */}
+                                    <div>
+                                        <span className="text-secondary font-label text-xs uppercase tracking-[0.2em] mb-4 block font-bold">{activeProject.shortDesc}</span>
+                                        <h2 className="font-headline text-4xl md:text-5xl lg:text-6xl font-extrabold text-primary mb-8 tracking-tight">{activeProject.title}</h2>
+                                        <p className="text-lg md:text-xl leading-relaxed text-on-surface-variant font-light max-w-xl">
+                                            {activeProject.desc}
+                                        </p>
+                                    </div>
+                                    
+                                    {/* Right: Client Quote */}
+                                    <div className="flex flex-col justify-center h-full">
+                                        <motion.div 
+                                            whileHover={{ y: -5 }}
+                                            className="bg-primary p-8 md:p-12 rounded-[2.5rem] relative overflow-hidden shadow-[0_20px_40px_-15px_rgba(0,0,0,0.15)]"
+                                        >
+                                            <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.05)_50%,transparent_75%)] bg-[length:250%_250%] animate-[shimmer_10s_infinite_linear]" />
+                                            <span className="material-symbols-outlined text-white/10 absolute -top-4 -left-4 pointer-events-none" style={{ fontSize: "10rem", leading: 1 }}>format_quote</span>
+                                            
+                                            <p className="text-lg md:text-xl italic text-on-primary relative z-10 font-light leading-relaxed mb-8">
+                                                {activeProject.quote}
+                                            </p>
+                                            
+                                            <div className="relative z-10 flex items-center gap-4 border-t border-white/10 pt-6 mt-auto">
+                                                <div className="w-12 h-12 rounded-full bg-white text-primary flex items-center justify-center font-headline font-bold text-lg">
+                                                    {activeProject.citeName.charAt(0)}
+                                                </div>
+                                                <div>
+                                                    <span className="block font-headline font-bold text-white text-lg">{activeProject.citeName}</span>
+                                                    <span className="block font-label text-[10px] uppercase tracking-[0.2em] text-white/70">{activeProject.citeTitle}</span>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    </div>
+                                </div>
 
-                        {/* 2. Project Details & Testimonial */}
-                        <div className="grid grid-cols-1 md:grid-cols-12 gap-16">
-                            <div className="md:col-span-5 space-y-8">
+                                {/* Gallery Section */}
                                 <div>
-                                    <h2 className="font-headline text-5xl font-extrabold text-primary mb-4">{activeProject.title}</h2>
-                                    <p className="text-lg leading-relaxed text-secondary font-light">{activeProject.desc}</p>
-                                </div>
-                                <div className="grid grid-cols-2 gap-8 border-t border-outline-variant pt-8">
-                                    <div>
-                                        <h4 className="font-label text-xs uppercase tracking-widest text-outline mb-2">Metric 1</h4>
-                                        <p className="font-headline font-bold text-primary">{activeProject.spec1}</p>
-                                    </div>
-                                    <div>
-                                        <h4 className="font-label text-xs uppercase tracking-widest text-outline mb-2">Metric 2</h4>
-                                        <p className="font-headline font-bold text-primary">{activeProject.spec2}</p>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div className="md:col-span-7 flex flex-col justify-center">
-                                <blockquote className="relative pl-12 border-l-4 border-secondary/20">
-                                    <span className="absolute -left-4 -top-8 text-8xl font-serif text-secondary/10 font-bold select-none">“</span>
-                                    <p className="text-2xl font-body italic text-primary leading-snug mb-6">{activeProject.quote}</p>
-                                    <cite className="not-italic">
-                                        <span className="block font-headline font-bold text-primary">{activeProject.citeName}</span>
-                                        <span className="block font-label text-xs uppercase tracking-widest text-secondary">{activeProject.citeTitle}</span>
-                                    </cite>
-                                </blockquote>
-                            </div>
-                        </div>
+                                    <h3 className="font-headline text-2xl font-bold text-primary mb-8 border-b-2 border-primary/10 pb-4 inline-block">Project Gallery</h3>
+                                    
+                                    {/* Masonry-style Grid */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 md:gap-8 grid-flow-row-dense">
+                                        {activeProject.gallery.map((img, index) => {
+                                            const totalItems = activeProject.gallery.length;
+                                            const isLarge = index === 0;
+                                            
+                                            let lgColSpan = 'lg:col-span-2';
+                                            let lgRowSpan = '';
+                                            let lgAspect = 'lg:aspect-square';
+                                            
+                                            if (isLarge) {
+                                                lgColSpan = 'lg:col-span-4';
+                                                lgRowSpan = 'lg:row-span-2';
+                                                lgAspect = 'lg:aspect-auto';
+                                            } else {
+                                                const rem = totalItems % 3;
+                                                if (rem === 1 && index === totalItems - 1) {
+                                                    lgColSpan = 'lg:col-span-6';
+                                                    lgAspect = 'lg:aspect-[3/1]';
+                                                } else if (rem === 2 && index >= totalItems - 2) {
+                                                    lgColSpan = 'lg:col-span-3';
+                                                    lgAspect = 'lg:aspect-[3/2]';
+                                                }
+                                            }
 
-                        {/* 3. Gallery Grid (2x2) */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {activeProject.gallery.map((img, index) => (
-                                <div key={index} className="aspect-[3/2] bg-surface-container overflow-hidden rounded-sm">
-                                    <img alt={`Gallery image ${index + 1}`} className="w-full h-full object-cover" src={img} />
+                                            let mdColSpan = 'md:col-span-1';
+                                            let mdAspect = 'md:aspect-square';
+                                            
+                                            if (totalItems % 2 !== 0 && index === totalItems - 1) {
+                                                mdColSpan = 'md:col-span-2';
+                                                mdAspect = 'md:aspect-[2/1]';
+                                            }
+
+                                            return (
+                                                <motion.div 
+                                                    key={index} 
+                                                    onClick={() => setPreviewImage(img)}
+                                                    whileHover={{ y: -5, scale: 1.02 }}
+                                                    className={`group relative bg-surface-container overflow-hidden rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer aspect-square ${mdAspect} ${mdColSpan} ${lgAspect} ${lgColSpan} ${lgRowSpan}`}
+                                                >
+                                                    {/* Project Image */}
+                                                    <img 
+                                                        alt={img.name} 
+                                                        loading="lazy"
+                                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                                                        src={`/assets/work-images/${activeProject.folder}/${img.file}`} 
+                                                    />
+                                                    
+                                                    {/* Image Label Overlay */}
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/5 to-transparent opacity-90 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-6 md:p-8">
+                                                        <span className="text-white font-headline font-bold text-lg md:text-xl translate-y-0 group-hover:-translate-y-2 transition-transform duration-500">
+                                                            {img.name}
+                                                        </span>
+                                                    </div>
+                                                </motion.div>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
-                            ))}
-                        </div>
-                    </motion.div>
+                            </div>
+                        </motion.div>
+                    </AnimatePresence>
                 </section>
 
-                {/* CTA Section */}
-                <section className="bg-primary py-32 text-center text-white">
-                    <div className="max-w-2xl mx-auto px-12">
-                        <h2 className="font-headline text-4xl font-extrabold mb-8 tracking-tight">Ready to build your space?</h2>
-                        <p className="text-secondary/80 mb-12">Our team of architects and project managers are ready to bring your vision to life.</p>
-                        <div className="flex flex-col md:flex-row justify-center gap-6">
-                            <button className="bg-white text-primary px-10 py-4 font-headline font-bold text-sm tracking-widest uppercase hover:bg-secondary transition-all rounded-sm">Download Brochure</button>
-                            <button className="border border-outline-variant/30 text-white px-10 py-4 font-headline font-bold text-sm tracking-widest uppercase hover:bg-white hover:text-primary transition-all rounded-sm">Schedule a Visit</button>
+                {/* Modern CTA */}
+                <section className="px-4 sm:px-6 md:px-12 max-w-[1440px] mx-auto mt-24">
+                    <div className="bg-primary rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden shadow-2xl">
+                        <div className="absolute top-0 right-0 w-[50vw] h-[50vw] bg-[radial-gradient(circle,rgba(255,255,255,0.1)_0%,transparent_70%)] rounded-full pointer-events-none transform translate-x-1/2 -translate-y-1/2"></div>
+                        <h2 className="text-on-primary font-headline text-4xl md:text-5xl font-extrabold mb-8 tracking-tighter relative z-10">Ready to build your space?</h2>
+                        <p className="text-on-primary/80 mb-12 text-lg max-w-2xl mx-auto font-light relative z-10">Our team of architects and project managers are ready to bring your vision to life with uncompromising precision.</p>
+                            <div className="flex flex-col sm:flex-row justify-center gap-6 relative z-10">
+                            <a href="/files/Design_Pulley_Broucher.pdf" target="_blank" rel="noopener noreferrer" download className="w-full sm:w-auto rounded-full bg-surface text-primary px-10 py-4 font-headline font-bold tracking-[0.1em] hover:scale-105 transition-transform duration-300 shadow-xl uppercase text-sm">Download Brochure</a>
+                            <button onClick={() => navigate('/contact')} className="w-full sm:w-auto rounded-full border border-on-primary/30 text-on-primary px-10 py-4 font-headline font-bold tracking-[0.1em] hover:bg-on-primary/10 transition-colors duration-300 uppercase text-sm">Schedule a Visit</button>
                         </div>
                     </div>
                 </section>
+
+                {/* Lightbox / Image Preview */}
+                <AnimatePresence>
+                    {previewImage && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 md:p-12 cursor-pointer backdrop-blur-md"
+                            onClick={() => setPreviewImage(null)}
+                        >
+                            <motion.div
+                                initial={{ scale: 0.9, y: 20 }}
+                                animate={{ scale: 1, y: 0 }}
+                                exit={{ scale: 0.9, y: 20 }}
+                                className="relative max-w-7xl max-h-full flex flex-col items-center justify-center cursor-default w-full"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <img
+                                    src={`/assets/work-images/${activeProject.folder}/${previewImage.file}`}
+                                    alt={previewImage.name}
+                                    className="max-w-full max-h-[80vh] object-contain rounded-xl shadow-2xl"
+                                />
+                                <div className="mt-6 text-center">
+                                    <h3 className="text-white font-headline text-2xl md:text-3xl font-bold">{previewImage.name}</h3>
+                                    <p className="text-white/60 font-body text-sm mt-1 uppercase tracking-widest">{activeProject.title}</p>
+                                </div>
+                                <button
+                                    className="absolute -top-4 right-0 md:-top-12 md:-right-12 text-white/70 hover:text-white transition-colors bg-black/50 p-2 rounded-full hover:bg-white/20 backdrop-blur-sm"
+                                    onClick={() => setPreviewImage(null)}
+                                >
+                                    <span className="material-symbols-outlined text-3xl block">close</span>
+                                </button>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </main>
         </motion.div>
     );
